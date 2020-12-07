@@ -51,13 +51,14 @@ int main(int argc, char* argv[])
 		else if (strcmp(argv[i], "-lof") == 0)
 		{
 			i++; if (i >= argc) continue;
-			input_dir = std::string(argv[i]);
+			input_dir = argv[i];
 		}
 		else if (strcmp(argv[i], "-o") == 0) {
 			i++; if (i >= argc) continue;
-			size_t dotPos = std::string(argv[i]).find_last_of('.');
-			output_prefix = std::string(argv[i]).substr(0, dotPos);
-			output_poxtfix = std::string(argv[i]).substr(dotPos);
+			std::string out = argv[i];
+			size_t dotPos = out.find_last_of('.');
+			output_prefix = out.substr(0, dotPos);
+			output_poxtfix = out.substr(dotPos);
 		}
 		else if (strcmp(argv[i], "-tile_size") == 0)
 		{

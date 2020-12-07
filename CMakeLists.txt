@@ -7,7 +7,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 #set path
 set(LASlib_INCLUDE_DIR "/usr/local/include/LASlib")
 set(LASlib_LIBRARY "/usr/local/lib/LASlib")
-set(CMAKE_PREFIX_PATH "/home/andrew/Qt5.12.9/5.12.9/gcc_64" cache path "Qt5_DIR")
 
 if(CMAKE_CL_64)  
     	set(PLATFORM "x64")
@@ -43,9 +42,9 @@ set(CompilerFlags
     CMAKE_C_FLAGS_DEBUG
     CMAKE_C_FLAGS_RELEASE
   )
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -lboost_system")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 foreach(CompilerFlags ${CompilerFlags})
-  #string(REPLACE "/MD" "/MT" ${CompilerFlags} "${${CompilerFlags}}")
+  string(REPLACE "/MD" "/MT" ${CompilerFlags} "${${CompilerFlags}}")
   string(REPLACE "/Od" "/O2" ${CompilerFlags} "${${CompilerFlags}}")
 endforeach()
 endif()

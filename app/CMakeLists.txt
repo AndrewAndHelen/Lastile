@@ -7,6 +7,7 @@ find_library(LASLIB libLASlib.a HINTS ${LASlib_LIBRARY})
 if(LASLIB)
 	message("Found LASlib true.")
 endif(LASLIB)
+find_package(Boost REQUIRED COMPONENTS system thread)
 
 include_directories(${LASlib_INCLUDE_DIR})
 #qt5

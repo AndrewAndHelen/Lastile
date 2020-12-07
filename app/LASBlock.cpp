@@ -276,7 +276,7 @@ void LASBlock::divide()
 static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, LASinfo> subtile_info, std::vector<std::string> tile_contain_laspath)
 {
 	std::string lastile_path = subtile_info.first;
-	int surviving_number_of_point_records = 0;
+    unsigned int surviving_number_of_point_records = 0;
 	unsigned int surviving_number_of_points_by_return[] = { 0,0,0,0,0,0,0,0 };
 
 	LASwriteOpener laswriteopener;
