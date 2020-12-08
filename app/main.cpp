@@ -1,5 +1,5 @@
-#include <iostream>
 #include "LASBlock.h"
+#include "assert.h" 
 #ifdef _WIN32
 #include<io.h>
 	#include<direct.h>
@@ -57,6 +57,8 @@ int main(int argc, char* argv[])
 			i++; if (i >= argc) continue;
 			std::string out = argv[i];
 			size_t dotPos = out.find_last_of('.');
+			
+			assert(dotPos>0&&dotPos<out.length())
 			output_prefix = out.substr(0, dotPos);
 			output_poxtfix = out.substr(dotPos);
 		}

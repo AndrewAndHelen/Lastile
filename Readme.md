@@ -39,7 +39,7 @@ prerequisites: cmake version>=3.0
 - [x] tile .laz files according to sub-block size
 
 ##  Contact
-If you found bugs or have new ideas,please pull requests:smile:
+If you found bugs or have new ideas,please pull requests:smile:   
 If you have trouble compiling or using this software,email to 15313326374@163.com
 
 ## Good Luck For You!
