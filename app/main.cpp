@@ -127,13 +127,19 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	if (0 != _access(output_dir.c_str(), 0))
+#ifdef _WIN32
+    if (0 != _access(output_dir.c_str(), 0))
 	{
 		// if this folder not exist, create a new one.
-		//_mkdir(output_dir.c_str());   // 返回 0 表示创建成功，-1 表示失败
-		std::cerr << "Don't find output folder!\n";
-		exit(1);
+		_mkdir(output_dir.c_str());
 	}
+#else defined linux
+    if (0 != eaccess(output_dir.c_str(), F_OK))
+    {
+        // if this folder not exist, create a new one.
+        int flag = mkdir(output_dir.c_str(),S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
+    }
+#endif
 
 	LASBlock::params param;
 	param.tile_size = tile_size;

@@ -10,7 +10,7 @@
 #include "fstream"
 #include "sstream"
 #include "cmath"
-
+#include "cfloat"
 #include"QtCore/QRunnable"
 #include "QtCore/QThreadPool"
 #include "QtCore/QProcess"
