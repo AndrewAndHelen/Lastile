@@ -10,7 +10,7 @@
 #include "fstream"
 #include "sstream"
 #include "cmath"
-#include "cfloat"
+
 #include"QtCore/QRunnable"
 #include "QtCore/QThreadPool"
 #include "QtCore/QProcess"
@@ -20,8 +20,8 @@
 #include "chrono"
 #include "ctime"
 
-
 enum POXTFIX { LAS, LAZ };
+const size_t MINIMUM_POINT_SIZE = 1000;
 struct LASinfo
 {
 	F64 max_x;

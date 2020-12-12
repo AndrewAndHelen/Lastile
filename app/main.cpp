@@ -1,15 +1,14 @@
 #include "LASBlock.h"
 #include "assert.h" 
-#ifdef _WIN32
+#ifdef  _WIN32
 #include<io.h>
-	#include<direct.h>
+#include<direct.h>
 #else defined linux
 #include <sys/io.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
 static void Usage(const char* pszErrorMsg = NULL)
 {
 	fprintf(stderr, "Usage:\n");
@@ -51,16 +50,17 @@ int main(int argc, char* argv[])
 		else if (strcmp(argv[i], "-lof") == 0)
 		{
 			i++; if (i >= argc) continue;
-			input_dir = argv[i];
+			input_dir = std::string(argv[i]);
 		}
 		else if (strcmp(argv[i], "-o") == 0) {
 			i++; if (i >= argc) continue;
-			std::string out = argv[i];
-			size_t dotPos = out.find_last_of('.');
-			
-			assert(dotPos>0&&dotPos<out.length())
-			output_prefix = out.substr(0, dotPos);
-			output_poxtfix = out.substr(dotPos);
+			std::string temp = argv[i];
+			size_t dotPos = temp.find_last_of('.');
+
+			if (dotPos > 0 && dotPos < temp.size())
+				output_prefix = temp.substr(0, dotPos);
+			else
+				output_prefix = temp;
 		}
 		else if (strcmp(argv[i], "-tile_size") == 0)
 		{
@@ -80,10 +80,12 @@ int main(int argc, char* argv[])
 		else if (strcmp(argv[i], "-olas") == 0)
 		{
 			output_format = LAS;
+			output_poxtfix = ".las";
 		}
 		else if (strcmp(argv[i], "-olaz") == 0)
 		{
 			output_format = LAZ;
+			output_poxtfix = ".laz";
 		}
 		else if (strcmp(argv[i], "-cores") == 0)
 		{
@@ -124,20 +126,14 @@ int main(int argc, char* argv[])
 		std::cerr << "no output las dir!" << "\n";
 		exit(1);
 	}
-#ifdef _WIN32
-    if (0 != _access(output_dir.c_str(), 0))
+
+	if (0 != _access(output_dir.c_str(), 0))
 	{
 		// if this folder not exist, create a new one.
-		_mkdir(output_dir.c_str());
+		//_mkdir(output_dir.c_str());   // 返回 0 表示创建成功，-1 表示失败
+		std::cerr << "Don't find output folder!\n";
+		exit(1);
 	}
-#else defined linux
-    if (0 != eaccess(output_dir.c_str(), F_OK))
-    {
-        // if this folder not exist, create a new one.
-        int flag = mkdir(output_dir.c_str(),S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
-    }
-#endif
-
 
 	LASBlock::params param;
 	param.tile_size = tile_size;
@@ -170,7 +166,7 @@ int main(int argc, char* argv[])
 		std::cerr << "Unrecognized data format";
 		exit(1);
 	}
-
+	
 	LASBlock lasblock;
 	lasblock.setParam(param);
 	lasblock.divide();

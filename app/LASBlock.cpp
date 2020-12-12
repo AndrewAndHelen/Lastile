@@ -276,7 +276,7 @@ void LASBlock::divide()
 static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, LASinfo> subtile_info, std::vector<std::string> tile_contain_laspath)
 {
 	std::string lastile_path = subtile_info.first;
-    unsigned int surviving_number_of_point_records = 0;
+	int surviving_number_of_point_records = 0;
 	unsigned int surviving_number_of_points_by_return[] = { 0,0,0,0,0,0,0,0 };
 
 	LASwriteOpener laswriteopener;
@@ -289,7 +289,7 @@ static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, L
 		exit(-1);
 	}
 
-	if (strcmp(&lastile_path.back(), "z") == 0) {
+	if (param.poxtfix==LAZ) {
 		laswriteopener.set_format(LAS_TOOLS_FORMAT_LAZ);
 	}
 	else {
@@ -364,7 +364,7 @@ static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, L
 
 			x = point_r.get_x();
 			y = point_r.get_y();
-			z = lasreader->point.get_z();
+			z = point_r.get_z();
 			if (param.keep_xy)
 			{
 				if(!(x>= param.range_min_x&&x<= param.range_max_x&&y>= param.range_min_y&&y<= param.range_max_y))
@@ -464,6 +464,8 @@ static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, L
 	delete laswriter;
 	laswriter = nullptr;
 
+	if (surviving_number_of_point_records <= MINIMUM_POINT_SIZE)
+		remove(lastile_path.c_str());
 	return true;
 }
 
