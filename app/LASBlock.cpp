@@ -455,6 +455,57 @@ static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, L
 	for (int i = 0; i < 5; i++)
 		las_header_write.number_of_points_by_return[i] = surviving_number_of_points_by_return[i];
 
+	//solve I32_QUANTIZE -/+ 0.5 * x_scale_factor
+    if((minX-las_header_write.x_offset)/las_header_write.x_scale_factor>=0)
+    {
+        minX-=0.5*las_header_write.x_scale_factor;
+    }
+    else
+    {
+        minX += 0.5 * las_header_write.x_scale_factor;
+    }
+    if((minY-las_header_write.y_offset)/las_header_write.y_scale_factor>=0)
+    {
+        minY-=0.5*las_header_write.y_scale_factor;
+    }
+    else
+    {
+        minY += 0.5 * las_header_write.y_scale_factor;
+    }
+    if((minZ-las_header_write.z_offset)/las_header_write.z_scale_factor>=0)
+    {
+        minZ-=0.5*las_header_write.z_scale_factor;
+    }
+    else
+    {
+        minZ += 0.5 * las_header_write.z_scale_factor;
+    }
+
+    if((maxX-las_header_write.x_offset)/las_header_write.x_scale_factor>=0)
+    {
+        maxX-=0.5*las_header_write.x_scale_factor;
+    }
+    else
+    {
+        maxX += 0.5 * las_header_write.x_scale_factor;
+    }
+    if((maxY-las_header_write.y_offset)/las_header_write.y_scale_factor>=0)
+    {
+        maxY-=0.5*las_header_write.y_scale_factor;
+    }
+    else
+    {
+        maxY += 0.5 * las_header_write.y_scale_factor;
+    }
+    if((maxZ-las_header_write.z_offset)/las_header_write.z_scale_factor>=0)
+    {
+        maxZ-=0.5*las_header_write.z_scale_factor;
+    }
+    else
+    {
+        maxZ += 0.5 * las_header_write.z_scale_factor;
+    }
+
 	las_header_write.set_bounding_box(minX, minY, minZ, maxX, maxY, maxZ, false, false);
 
 	// update the header
