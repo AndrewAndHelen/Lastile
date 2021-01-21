@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	POXTFIX output_format = LAS;
 	bool keep_xy = false; bool keep_z = false;
 	double tile_size = 1000;
-	double buffer = 25;
+	double buffer = 0;
 	int threadNum = 4;
 	std::string input_dir, output_dir, output_prefix, output_poxtfix;
 	double range_min_x, range_min_y, range_max_x, range_max_y, range_min_z, range_max_z;
