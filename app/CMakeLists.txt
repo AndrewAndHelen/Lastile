@@ -2,14 +2,21 @@ cmake_minimum_required (VERSION 3.0)
 cmake_policy(VERSION 3.0)
 
 project(LASBlock C CXX)
+if(MSVC)
+set(BOOST_INCLUDEDIR $ENV{Boost_INCLUDE_DIRS} CACHE PATH "BOOST_INCLUDEDIR")
+set(BOOST_LIBRARYDIR $ENV{BOOST_LIBRARY_DIR} CACHE PATH "BOOST_LIBRARYDIR")
+endif()
 
-find_library(LASLIB libLASlib.a HINTS ${LASlib_LIBRARY})
-if(LASLIB)
-	message("Found LASlib true.")
-endif(LASLIB)
-find_package(Boost REQUIRED COMPONENTS system thread)
+#boost
+if(MSVC)
+  set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+  set(Boost_USE_DEBUG_LIBS         ON) # ignore debug libs and
+  set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+  set(Boost_USE_MULTITHREADED      ON)
+  set(Boost_USE_STATIC_RUNTIME    OFF)
+endif()
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 
-include_directories(${LASlib_INCLUDE_DIR})
 #qt5
 find_package(Qt5 COMPONENTS Core REQUIRED)
 include_directories(${Qt5Core_INCLUDE_DIRS})
@@ -19,5 +26,8 @@ set(SRCS_FILES ${SOURCES})
 
 add_executable (${PROJECT_NAME} ${SRCS_FILES})
 
-target_link_libraries(${PROJECT_NAME} ${LASLIB})
-target_link_libraries( ${PROJECT_NAME} Qt5::Core)
+target_link_libraries(${PROJECT_NAME} PUBLIC LASlib Qt5::Core ${Boost_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PUBLIC 
+	${CMAKE_SOURCE_DIR}/LASlib/include
+	${Boost_INCLUDE_DIRS}
+	)

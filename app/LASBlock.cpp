@@ -46,7 +46,7 @@ void LASBlock::setParam(params param)
 	if (!fp)
 	{
 		std::cerr << "Couldn't open " << param.input_dir;
-		exit(1);
+		exit(0);
 	}
 	while (!fp.eof()) {
 		std::string filename;
@@ -58,7 +58,7 @@ void LASBlock::setParam(params param)
 
 	if (lasfile_dir.size() == 0) {
 		std::cerr << "ERROR!,The las file is empty!" << std::endl;
-		exit(-1);
+		exit(0);
 	}
 
 	int number_las = lasfile_dir.size();
@@ -70,18 +70,18 @@ void LASBlock::setParam(params param)
 		LasOriginBoundary_info[i].first = lasfile_name;
 
 		LASreadOpener lasreadopener;
+		LASreader* lasreader;
+
 		lasreadopener.set_file_name(lasfile_name.c_str());
 
 		if (!lasreadopener.active()) {
 			std::cout << "ERROR: no input specified" << std::endl;
-			exit(-1);
+			exit(0);
 		}
 
-		LASreader* lasreader = lasreadopener.open();
-		if (lasreader == 0) {
-			std::cout << "ERROR: could not open lasreader" << std::endl;
-			exit(-1);
-		}
+		lasreader = lasreadopener.open();
+		if (!lasreader)
+			exit(0);
 
 		LASinfo  las_info;
 		las_info.min_x = lasreader->get_min_x();
