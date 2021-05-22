@@ -129,16 +129,10 @@ int main(int argc, char* argv[])
 
 #ifdef _WIN32
     if (0 != _access(output_dir.c_str(), 0))
-	{
-		// if this folder not exist, create a new one.
 		_mkdir(output_dir.c_str());
-	}
 #else defined linux
     if (0 != eaccess(output_dir.c_str(), F_OK))
-    {
-        // if this folder not exist, create a new one.
         int flag = mkdir(output_dir.c_str(),S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
-    }
 #endif
 
 	LASBlock::params param;

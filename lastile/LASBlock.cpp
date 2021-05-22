@@ -46,7 +46,7 @@ void LASBlock::setParam(params param)
 	if (!fp)
 	{
 		std::cerr << "Couldn't open " << param.input_dir;
-		exit(0);
+		return;
 	}
 	while (!fp.eof()) {
 		std::string filename;
@@ -58,7 +58,7 @@ void LASBlock::setParam(params param)
 
 	if (lasfile_dir.size() == 0) {
 		std::cerr << "ERROR!,The las file is empty!" << std::endl;
-		exit(0);
+		return;
 	}
 
 	int number_las = lasfile_dir.size();
@@ -76,12 +76,12 @@ void LASBlock::setParam(params param)
 
 		if (!lasreadopener.active()) {
 			std::cout << "ERROR: no input specified" << std::endl;
-			exit(0);
+			return;
 		}
 
 		lasreader = lasreadopener.open();
 		if (!lasreader)
-			exit(0);
+			return;
 
 		LASinfo  las_info;
 		las_info.min_x = lasreader->get_min_x();
@@ -116,18 +116,6 @@ void LASBlock::setParam(params param)
 
 bool LASBlock::isIntersect(LASinfo rectA, LASinfo rectB)
 {
-	////The point where rectA and rectB intersect with the greater value in the X direction and the greater value in the Y direction in topleft
-	//F64 topleft_maxx = rectA.min_x > rectB.min_x ? rectA.min_x : rectB.min_x;
-	//F64 topleft_maxy = rectA.min_y > rectB.min_y ? rectA.min_y : rectB.min_y;
-	//F64 bottomright_minx = rectA.max_x < rectB.max_x ? rectA.max_x : rectB.max_x;
-	//F64 bottomright_miny = rectA.max_y < rectB.max_y ? rectA.max_y : rectB.max_y;
-
-	//if (topleft_maxx < bottomright_minx&&topleft_maxy < bottomright_miny)
-	//	return true;
-	//else
-	//	return false;
-
-	//The Envelope method
 	LASinfo EnvelopeRect;
 	EnvelopeRect.min_x = rectA.min_x < rectB.min_x ? rectA.min_x : rectB.min_x;
 	EnvelopeRect.min_y = rectA.min_y < rectB.min_y ? rectA.min_y : rectB.min_y;
@@ -292,7 +280,7 @@ static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, L
 
 	if (!laswriteopener.active()) {
 		std::cerr << "error: could not write las file: " << lastile_path << std::endl;
-		exit(-1);
+		return false;
 	}
 
 	if (param.poxtfix==LAZ) {
@@ -493,7 +481,7 @@ void LASBlock::run()
 
 	if (threadNum<1 || threadNum>maxThreadNum) {
 		std::cerr << "ERROR! The number of thread must meet the requirements\n";
-		exit(1);
+		return;
 	}
 
 	pool.setMaxThreadCount(threadNum);

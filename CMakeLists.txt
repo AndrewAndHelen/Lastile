@@ -14,4 +14,4 @@ else()
 endif()
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/LASlib)
-add_subdirectory(${CMAKE_SOURCE_DIR}/app)
+add_subdirectory(${CMAKE_SOURCE_DIR}/lastile)
