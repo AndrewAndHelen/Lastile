@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 cmake_policy(VERSION 3.0)
 
-project(LASBlock C CXX)
+project(Lastile C CXX)
 
 if(MSVC)
 	set(CMAKE_CXX_STANDARD 11)

@@ -1,4 +1,4 @@
-# LASBlock
+# Lastile
 
 A tool to tile the .las file
 
@@ -11,8 +11,8 @@ The code is based on the following prerequisites:
 prerequisites: cmake version>=3.0
 
 ```
-1. git clone https://github.com/AndrewAndJenny/LASBlock.git
-2. cd LASBlock
+1. git clone https://github.com/AndrewAndJenny/Lastile.git
+2. cd Lastile
 ```
 
 **in the cmake-bash**
