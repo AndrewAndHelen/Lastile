@@ -46,7 +46,7 @@ void LASBlock::setParam(params param)
 	if (!fp)
 	{
 		std::cerr << "Couldn't open " << param.input_dir;
-		return;
+		exit(0);
 	}
 	while (!fp.eof()) {
 		std::string filename;
@@ -58,16 +58,14 @@ void LASBlock::setParam(params param)
 
 	if (lasfile_dir.size() == 0) {
 		std::cerr << "ERROR!,The las file is empty!" << std::endl;
-		return;
+		exit(0);
 	}
 
 	int number_las = lasfile_dir.size();
-	LasOriginBoundary_info.resize(number_las);
 
 	for (int i = 0; i < number_las; i++)
 	{
 		std::string lasfile_name = lasfile_dir[i];
-		LasOriginBoundary_info[i].first = lasfile_name;
 
 		LASreadOpener lasreadopener;
 		LASreader* lasreader;
@@ -76,12 +74,12 @@ void LASBlock::setParam(params param)
 
 		if (!lasreadopener.active()) {
 			std::cout << "ERROR: no input specified" << std::endl;
-			return;
+			exit(0);
 		}
 
 		lasreader = lasreadopener.open();
 		if (!lasreader)
-			return;
+			exit(0);
 
 		LASinfo  las_info;
 		las_info.min_x = lasreader->get_min_x();
@@ -90,6 +88,9 @@ void LASBlock::setParam(params param)
 		las_info.max_x = lasreader->get_max_x();
 		las_info.max_y = lasreader->get_max_y();
 		las_info.max_z = lasreader->get_max_z();
+
+		if(las_info.min_x> las_info.max_x|| las_info.min_y> las_info.max_y)
+			continue;
 
 		las_info.x_scale_factor = lasreader->header.x_scale_factor;
 		las_info.y_scale_factor = lasreader->header.y_scale_factor;
@@ -108,7 +109,13 @@ void LASBlock::setParam(params param)
 			las_info.point_data_format = 5;
 		}
 		las_info.point_data_record_length = GetFormatRecordLength(las_info.point_data_format);
-		LasOriginBoundary_info[i].second = las_info;
+
+		std::pair<std::string, LASinfo> single_boundary_info;
+
+		single_boundary_info.first = lasfile_name;
+		single_boundary_info.second = las_info;
+
+		LasOriginBoundary_info.emplace_back(single_boundary_info);
 
 		delete lasreader;
 	}
@@ -116,6 +123,18 @@ void LASBlock::setParam(params param)
 
 bool LASBlock::isIntersect(LASinfo rectA, LASinfo rectB)
 {
+	////The point where rectA and rectB intersect with the greater value in the X direction and the greater value in the Y direction in topleft
+	//F64 topleft_maxx = rectA.min_x > rectB.min_x ? rectA.min_x : rectB.min_x;
+	//F64 topleft_maxy = rectA.min_y > rectB.min_y ? rectA.min_y : rectB.min_y;
+	//F64 bottomright_minx = rectA.max_x < rectB.max_x ? rectA.max_x : rectB.max_x;
+	//F64 bottomright_miny = rectA.max_y < rectB.max_y ? rectA.max_y : rectB.max_y;
+
+	//if (topleft_maxx < bottomright_minx&&topleft_maxy < bottomright_miny)
+	//	return true;
+	//else
+	//	return false;
+
+	//The Envelope method
 	LASinfo EnvelopeRect;
 	EnvelopeRect.min_x = rectA.min_x < rectB.min_x ? rectA.min_x : rectB.min_x;
 	EnvelopeRect.min_y = rectA.min_y < rectB.min_y ? rectA.min_y : rectB.min_y;
@@ -204,7 +223,9 @@ void LASBlock::divide()
 	{
 		std::pair<std::string, LASinfo> tmp;
 		if (retain_list[i] == true) {
-			tmp.first = BlockParam.output_dir+"/"+BlockParam.output_prefix + std::to_string((int)origin_subtile[i].min_x) + "_" + std::to_string((int)origin_subtile[i].min_y) + output_poxtfix;
+			tmp.first = BlockParam.output_dir+"/"+BlockParam.output_prefix + std::to_string(static_cast<int>(origin_subtile[i].min_x+ BlockParam.tile_size/2)) + "_" + 
+				std::to_string(static_cast<int>(origin_subtile[i].min_y + BlockParam.tile_size / 2)) +"_"+ std::to_string(static_cast<int>(BlockParam.tile_size)) + output_poxtfix;
+
 			tmp.second = origin_subtile[i];
 			LasRetainBoundary_info.emplace_back(tmp);
 			tile_num++;
@@ -280,7 +301,7 @@ static bool singleLasDivideTask(LASBlock::params param, std::pair<std::string, L
 
 	if (!laswriteopener.active()) {
 		std::cerr << "error: could not write las file: " << lastile_path << std::endl;
-		return false;
+		exit(-1);
 	}
 
 	if (param.poxtfix==LAZ) {
@@ -481,7 +502,7 @@ void LASBlock::run()
 
 	if (threadNum<1 || threadNum>maxThreadNum) {
 		std::cerr << "ERROR! The number of thread must meet the requirements\n";
-		return;
+		exit(1);
 	}
 
 	pool.setMaxThreadCount(threadNum);
