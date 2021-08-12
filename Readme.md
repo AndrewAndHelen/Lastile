@@ -5,7 +5,7 @@ A tool to tile the .las file
 ## Dependencies
 
 The code is based on the following prerequisites:
-* Qt
+* C++11
 
 ##  Compilation
 prerequisites: cmake version>=3.0

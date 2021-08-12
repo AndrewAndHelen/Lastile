@@ -1,4 +1,4 @@
-#include "LASBlock.h"
+#include "lastile.h"
 #include "assert.h" 
 #ifdef  _WIN32
 #include<io.h>
@@ -33,13 +33,17 @@ static void Usage(const char* pszErrorMsg = NULL)
 
 int main(int argc, char* argv[])
 {
-	POXTFIX output_format = LAS;
-	bool keep_xy = false; bool keep_z = false;
-	double tile_size = 1000;
-	double buffer = 0;
+	PC_UTILS::PC_FORMAT output_format = PC_UTILS::PC_FORMAT::LAS;
+	
+	double tile_size = 500;
+	double buffer = 15;
+	double range_min_x = -DBL_MAX / 2, range_min_y = -DBL_MAX / 2, range_min_z = -DBL_MAX / 2; 
+	double range_max_x = DBL_MAX / 2,  range_max_y = DBL_MAX / 2,  range_max_z = DBL_MAX / 2;
+
 	int threadNum = 4;
-	std::string input_dir, output_dir, output_prefix, output_poxtfix;
-	double range_min_x, range_min_y, range_max_x, range_max_y, range_min_z, range_max_z;
+	bool keep_xy = false; bool keep_z = false;
+	std::string input_dir, output_dir, output_prefix;
+	
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -79,13 +83,11 @@ int main(int argc, char* argv[])
 		}
 		else if (strcmp(argv[i], "-olas") == 0)
 		{
-			output_format = LAS;
-			output_poxtfix = ".las";
+			output_format = PC_UTILS::PC_FORMAT::LAS;
 		}
 		else if (strcmp(argv[i], "-olaz") == 0)
 		{
-			output_format = LAZ;
-			output_poxtfix = ".laz";
+			output_format = PC_UTILS::PC_FORMAT::LAZ;
 		}
 		else if (strcmp(argv[i], "-cores") == 0)
 		{
@@ -118,65 +120,49 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (input_dir.size() < 1) {
-		std::cerr << "no input las folder!" << "\n";
-		exit(1);
+	if (input_dir.empty()) {
+		std::cerr << "ERROR:no input las folder!" << "\n";
+		return 0;
 	}
 	else if (output_dir.size() < 1) {
-		std::cerr << "no output las dir!" << "\n";
-		exit(1);
+		std::cerr << "ERROR:no output las dir!" << "\n";
+		return 0;
 	}
 
 #ifdef _WIN32
-    if (0 != _access(output_dir.c_str(), 0))
-	{
-		// if this folder not exist, create a new one.
+    if (0 != _access(output_dir.c_str(), 0)) 
 		_mkdir(output_dir.c_str());
-	}
 #else defined linux
     if (0 != eaccess(output_dir.c_str(), F_OK))
-    {
-        // if this folder not exist, create a new one.
         int flag = mkdir(output_dir.c_str(),S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
-    }
 #endif
-
-	LASBlock::params param;
-	param.tile_size = tile_size;
-	param.buffer_width = buffer;
-	param.input_dir = input_dir;
-	param.output_dir = output_dir;
-	param.output_prefix = output_prefix;
-	param.ThreadNum = threadNum;
-
-	if (keep_xy) {
-		param.keep_xy = keep_xy;
-		param.range_min_x = range_min_x;
-		param.range_min_y = range_min_y;
-		param.range_max_x = range_max_x;
-		param.range_max_y = range_max_y;
-	}
-
-	if (keep_z) {
-		param.keep_z = keep_z;
-		param.range_min_z = range_min_z;
-		param.range_max_z = range_max_z;
-	}
-	if (output_format == LAZ) {
-		param.poxtfix = LAZ;
-	}
-	else if (output_format == LAS) {
-		param.poxtfix = LAS;
-	}
-	else {
-		std::cerr << "Unrecognized data format";
-		exit(1);
-	}
 	
-	LASBlock lasblock;
-	lasblock.setParam(param);
-	lasblock.divide();
-	lasblock.run();
-	std::cout << "Finished block!";
+	std::list<PC_UTILS::TILE_TASK> subtile_list;
+
+	PC_UTILS::LASTILE lastile;
+
+	if (!lastile.divideGrid(input_dir,
+		tile_size,
+		buffer,
+		output_dir,
+		output_prefix,
+		output_format,
+		subtile_list,
+		range_min_x,
+		range_min_y,
+		range_max_x,
+		range_max_y,
+		keep_xy))
+	{
+		std::cerr << "ERROR:divide grid happen error!\n";
+		return 0;
+	}
+
+	lastile.run(subtile_list,
+		threadNum,
+		range_min_z,
+		range_max_z,
+		keep_z);
+
 	return 0;
 }
