@@ -114,7 +114,7 @@ bool LASTILE::divideGrid(const std::string laslist_path,
 
 
 			current_subtile._tile_info.lasfile_name = output_dir + "/" + output_prefix + std::to_string(static_cast<int>(current_subtile._tile_info.min_x)) + "_" +
-				std::to_string(static_cast<int>(current_subtile._tile_info.min_y)) + "_" + std::to_string(static_cast<int>(tile_size)) + suffix;
+				std::to_string(static_cast<int>(current_subtile._tile_info.min_y)) + suffix;
 
 			iterator++;
 		}
@@ -294,6 +294,12 @@ bool  LASTILE::readLasConfig(const std::string laslist_path,
 		if (las_config_info.min_x > las_config_info.max_x || las_config_info.min_y > las_config_info.max_y)
 		{
 			std::cerr << "ERROR: invalid boundary information in " << filepath << std::endl;
+			continue;
+		}
+
+		if (lasreader->header.number_of_point_records < MINIMUM_POINTS_SIZE)
+		{
+			std::cerr << "ERROR: too few points in " << filepath << std::endl;
 			continue;
 		}
 

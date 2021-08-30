@@ -10,7 +10,7 @@
 #include <functional>
 #include <stdexcept>
 
-#define  THREADPOOL_MAX_NUM 16
+const unsigned int THREADPOOL_MAX_NUM = std::thread::hardware_concurrency();
 //#define  THREADPOOL_AUTO_GROW
 
 class threadpool
