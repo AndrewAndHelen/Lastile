@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	PC_UTILS::PC_FORMAT output_format = PC_UTILS::PC_FORMAT::LAS;
 	
 	double tile_size = 500;
-	double buffer = 15;
+	double buffer = 0;
 	double range_min_x = -DBL_MAX / 2, range_min_y = -DBL_MAX / 2, range_min_z = -DBL_MAX / 2; 
 	double range_max_x = DBL_MAX / 2,  range_max_y = DBL_MAX / 2,  range_max_z = DBL_MAX / 2;
 
