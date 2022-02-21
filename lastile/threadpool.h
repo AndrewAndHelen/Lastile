@@ -10,9 +10,6 @@
 #include <functional>
 #include <stdexcept>
 
-const unsigned int THREADPOOL_MAX_NUM = std::thread::hardware_concurrency();
-//#define  THREADPOOL_AUTO_GROW
-
 class threadpool
 {
 	using Task = std::function<void()>;	//定义类型
@@ -20,20 +17,28 @@ class threadpool
 	std::queue<Task> _tasks;            //任务队列
 	std::mutex _lock;                   //同步
 	std::condition_variable _task_cv;   //条件阻塞
-	std::atomic<bool> _stop{ false };     //线程池是否停止
+	std::atomic<bool> _stop{ false };   //线程池是否停止
 
 public:
-	inline threadpool(unsigned short size = 4) { addThread(size); }
-	inline ~threadpool()
+	static threadpool& getInstance(unsigned short size = 4)
 	{
-		_stop.store(true);
-		_task_cv.notify_all(); 
-		for (std::thread& thread : _pool) {
-			if (thread.joinable())
-				thread.join(); 
-		}
+		static std::unique_ptr<threadpool> instance_ptr(new threadpool(size));
+		return *instance_ptr;
 	}
 
+	threadpool(const threadpool&) = delete;
+	threadpool(threadpool&&) = delete;
+	threadpool& operator=(const threadpool&) = delete;
+	threadpool& operator=(threadpool&&) = delete;
+	~threadpool()
+	{
+		_stop.store(true);
+		_task_cv.notify_all();
+		for (std::thread& thread : _pool) {
+			if (thread.joinable())
+				thread.join();
+		}
+	}
 public:
 	// 提交一个任务
 	// 调用.get()获取返回值会等待任务执行完,获取返回值
@@ -49,39 +54,42 @@ public:
 		using RetType = decltype(f(args...)); // typename std::result_of<F(Args...)>::type, 函数 f 的返回值类型
 		auto task = std::make_shared<std::packaged_task<RetType()>>(
 			std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-			); 
+			);
+
 		std::future<RetType> future = task->get_future();
 		{
 			std::lock_guard<std::mutex> lock{ _lock };
-			_tasks.emplace([task]() { 
+			_tasks.emplace([task]() {
 				(*task)();
-				});
+			});
 		}
 
-		_task_cv.notify_one(); 
+		_task_cv.notify_one();
 
 		return future;
 	}
 
 private:
+	threadpool(unsigned short size = 4) { addThread(size); }
 	void addThread(unsigned short size)
 	{
+		const int THREADPOOL_MAX_NUM = std::thread::hardware_concurrency();
 		for (; _pool.size() < THREADPOOL_MAX_NUM && size > 0; --size)
 		{
-			_pool.emplace_back([this] 
-			{ 
+			_pool.emplace_back([this]
+			{
 				while (!_stop.load())
 				{
-					Task task; 
+					Task task;
 
 					{
 						std::unique_lock<std::mutex> lock{ this->_lock };
 						this->_task_cv.wait(lock, [this] {
 							return this->_stop.load() || !this->_tasks.empty();
-							}); 
+						});
 						if (this->_stop.load() && this->_tasks.empty())
 							return;
-						task = move(this->_tasks.front()); 
+						task = move(this->_tasks.front());
 						_tasks.pop();
 					}
 					task();
