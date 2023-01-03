@@ -11,7 +11,7 @@ The code is based on the following prerequisites:
 prerequisites: cmake version>=3.0
 
 ```
-1. git clone https://github.com/AndrewAndJenny/Lastile.git
+1. git clone https://github.com/AndrewAndHelen/Lastile.git
 2. cd Lastile
 ```
 
@@ -36,9 +36,5 @@ prerequisites: cmake version>=3.0
 ## Functions
 - [x] tile .las files according to sub-block size
 - [x] tile .laz files according to sub-block size
-
-##  Contact
-If you found bugs or have new ideas,please pull requests:smile:   
-If you have trouble compiling or using this software,email to 15313326374@163.com
 
 ## Good Luck For You!
